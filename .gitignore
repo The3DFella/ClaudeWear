@@ -1,0 +1,7 @@
+.superpowers/
+.DS_Store
+.idea/
+.vscode/
+__pycache__/
+*.log
+node_modules/

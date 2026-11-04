@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The LAN bridge is reached at arbitrary private IPs over plain http://, so cleartext must be
+  allowed by default. Tailscale hosts (*.ts.net) are always forced to HTTPS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">ts.net</domain>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="1200" height="620" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">ClaudeWear architecture</title>
+  <desc id="d">The ClaudeWear watch app talks to a bridge on your PC over Wi-Fi or Tailscale Funnel using a device token. The bridge reads Claude Code chat files and desktop chat metadata read-only, relays watch replies into the live desktop chat through a claude -p job limited to ListAgents and SendMessage, and receives approval requests from a local MCP permission tool.</desc>
+  <style>
+    /* One palette for GitHub light and dark: every label sits on an opaque light box or pill,
+       lines and the PC outline are mid-grey, the background stays transparent. */
+    .txt { fill: #1f2328; }
+    .sub { fill: #4d5560; }
+    .inv { fill: #f5f5f7; }
+    .invsub { fill: #b6bac4; }
+    .box { fill: #ffffff; stroke: #30363d; stroke-width: 1.6; }
+    .pc { fill: none; stroke: #8b949e; stroke-width: 1.8; stroke-dasharray: 8 6; }
+    .accent { fill: #fbe4da; stroke: #b85c3c; stroke-width: 2; }
+    .blue { fill: #e4ebff; stroke: #3b63d6; stroke-width: 1.6; }
+    .green { fill: #dcf3e2; stroke: #1f883d; stroke-width: 1.6; }
+    .screen { fill: #17181d; stroke: #30363d; stroke-width: 1.6; }
+    .tag { fill: #ffffff; stroke: #8b949e; stroke-width: 1.2; }
+    .line { stroke: #8b949e; stroke-width: 2; fill: none; }
+    .link { stroke: #d97757; stroke-width: 3; fill: none; }
+    .head { fill: #8b949e; }
+    .headA { fill: #d97757; }
+    .pill { fill: #fbe4da; stroke: #b85c3c; stroke-width: 1.2; }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="head"/>
+    </marker>
+    <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="headA"/>
+    </marker>
+  </defs>
+
+  <!-- Watch -->
+  <circle cx="160" cy="300" r="118" class="accent"/>
+  <circle cx="160" cy="300" r="100" class="screen"/>
+  <rect x="276" y="268" width="12" height="34" rx="4" class="accent"/>
+  <text x="160" y="262" text-anchor="middle" class="inv" font-size="21" font-weight="700">Galaxy Watch</text>
+  <text x="160" y="288" text-anchor="middle" fill="#e8916f" font-size="16" font-weight="600">ClaudeWear app</text>
+  <text x="160" y="318" text-anchor="middle" class="invsub" font-size="14">chats by project</text>
+  <text x="160" y="338" text-anchor="middle" class="invsub" font-size="14">reply by voice</text>
+  <text x="160" y="358" text-anchor="middle" class="invsub" font-size="14">approve / deny</text>
+
+  <!-- Watch <-> bridge link -->
+  <path d="M296 300 H476" class="link" marker-start="url(#arrA)" marker-end="url(#arrA)"/>
+  <rect x="300" y="196" width="148" height="70" rx="10" class="pill"/>
+  <text x="374" y="218" text-anchor="middle" class="txt" font-size="14" font-weight="600">Wi-Fi LAN or</text>
+  <text x="374" y="237" text-anchor="middle" class="txt" font-size="14" font-weight="600">Tailscale Funnel</text>
+  <text x="374" y="256" text-anchor="middle" class="sub" font-size="13">(HTTPS)</text>
+  <rect x="304" y="314" width="140" height="46" rx="10" class="tag"/>
+  <text x="374" y="333" text-anchor="middle" class="txt" font-size="14" font-weight="600">device token</text>
+  <text x="374" y="351" text-anchor="middle" class="sub" font-size="13">from 6-digit pairing</text>
+
+  <!-- PC container -->
+  <rect x="458" y="30" width="726" height="560" rx="18" class="pc"/>
+  <rect x="476" y="44" width="100" height="32" rx="16" class="tag"/>
+  <text x="526" y="66" text-anchor="middle" class="txt" font-size="17" font-weight="700">Your PC</text>
+
+  <!-- Bridge -->
+  <rect x="480" y="218" width="236" height="164" rx="14" class="accent"/>
+  <text x="598" y="256" text-anchor="middle" class="txt" font-size="20" font-weight="700">ClaudeWear bridge</text>
+  <text x="598" y="284" text-anchor="middle" class="sub" font-size="15">REST API</text>
+  <text x="598" y="306" text-anchor="middle" class="sub" font-size="15">+ live event stream</text>
+  <text x="598" y="338" text-anchor="middle" class="sub" font-size="13">status · steps · replies ·</text>
+  <text x="598" y="357" text-anchor="middle" class="sub" font-size="13">finish buzz · approvals</text>
+
+  <!-- Data sources (read-only) -->
+  <rect x="820" y="84" width="330" height="76" rx="12" class="box"/>
+  <text x="840" y="114" class="txt" font-size="16" font-weight="600">Claude Code chat files</text>
+  <text x="840" y="139" class="sub" font-size="14">transcripts per project · read-only</text>
+
+  <rect x="820" y="176" width="330" height="76" rx="12" class="box"/>
+  <text x="840" y="206" class="txt" font-size="16" font-weight="600">Claude desktop app chat metadata</text>
+  <text x="840" y="231" class="sub" font-size="14">titles · archived flag · read-only</text>
+
+  <path d="M818 122 H780 Q766 122 766 136 V264 Q766 278 752 278 H718" class="line" marker-end="url(#arr)"/>
+  <path d="M818 214 H766" class="line"/>
+  <rect x="738" y="236" width="56" height="24" rx="12" class="tag"/>
+  <text x="766" y="253" text-anchor="middle" class="sub" font-size="13">reads</text>
+
+  <!-- Relay -->
+  <rect x="820" y="300" width="330" height="96" rx="12" class="blue"/>
+  <text x="840" y="330" class="txt" font-size="16" font-weight="600">Relay job: claude -p</text>
+  <text x="840" y="354" class="sub" font-size="14">tools limited to</text>
+  <text x="840" y="376" class="sub" font-size="14">ListAgents + SendMessage</text>
+  <path d="M718 340 H818" class="line" marker-end="url(#arr)"/>
+  <rect x="726" y="352" width="84" height="24" rx="12" class="tag"/>
+  <text x="768" y="369" text-anchor="middle" class="sub" font-size="13">watch reply</text>
+
+  <rect x="820" y="448" width="330" height="76" rx="12" class="box"/>
+  <text x="840" y="478" class="txt" font-size="16" font-weight="600">Live Claude desktop chat</text>
+  <text x="840" y="503" class="sub" font-size="14">message arrives, answer is written</text>
+  <path d="M985 398 V446" class="line" marker-end="url(#arr)"/>
+  <!-- answer flows back through the chat files -->
+  <path d="M1152 486 H1166 V122 H1152" class="line" stroke-dasharray="5 5" marker-end="url(#arr)"/>
+  <g transform="rotate(-90 1166 300)">
+    <rect x="1093" y="288" width="146" height="24" rx="12" class="tag"/>
+    <text x="1166" y="305" text-anchor="middle" class="sub" font-size="13">answer → chat file</text>
+  </g>
+
+  <!-- Approvals -->
+  <rect x="480" y="448" width="236" height="96" rx="12" class="green"/>
+  <text x="498" y="478" class="txt" font-size="16" font-weight="600">Local MCP permission tool</text>
+  <text x="498" y="502" class="sub" font-size="14">for agents started from</text>
+  <text x="498" y="522" class="sub" font-size="14">the watch: Allow / Deny</text>
+  <path d="M598 446 V384" class="line" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <rect x="610" y="403" width="100" height="24" rx="12" class="tag"/>
+  <text x="660" y="420" text-anchor="middle" class="sub" font-size="13">ask · decision</text>
+</svg>

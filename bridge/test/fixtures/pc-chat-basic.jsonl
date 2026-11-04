@@ -1,0 +1,10 @@
+{"type":"custom-title","customTitle":"Old name","sessionId":"s1"}
+{"type":"queue-operation","operation":"enqueue"}
+{"type":"user","uuid":"u1","timestamp":"2026-11-04T20:27:51.000Z","cwd":"C:\\proj\\demo","entrypoint":"claude-desktop","message":{"role":"user","content":"<system-reminder>ignore me</system-reminder>Fix <pasted_content id=\"p1\">lots of text</pasted_content> now"}}
+{"type":"user","uuid":"u2","timestamp":"2026-11-04T20:27:52.000Z","isMeta":true,"message":{"role":"user","content":"meta text"}}
+{"type":"user","uuid":"u3","timestamp":"2026-11-04T20:27:52.000Z","isSidechain":true,"message":{"role":"user","content":"side text"}}
+{"type":"assistant","timestamp":"2026-11-04T20:27:53.000Z","message":{"id":"msg_1","role":"assistant","content":[{"type":"thinking","thinking":"hmm"}],"stop_reason":null}}
+{"type":"assistant","timestamp":"2026-11-04T20:27:54.000Z","message":{"id":"msg_1","role":"assistant","content":[{"type":"tool_use","name":"Read","input":{"file_path":"C:\\proj\\demo\\a.ts"}}],"stop_reason":"tool_use"}}
+{"type":"user","uuid":"u4","timestamp":"2026-11-04T20:27:55.000Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"file body"}]}}
+{"type":"assistant","timestamp":"2026-11-04T20:27:56.000Z","message":{"id":"msg_2","role":"assistant","content":[{"type":"text","text":"Done."}],"stop_reason":"end_turn"}}
+{"type":"custom-title","customTitle":"New name","sessionId":"s1"}

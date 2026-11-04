@@ -1,0 +1,56 @@
+{
+  "name": "wearclaude-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bridge that connects a Wear OS watch to Claude Code on your PC (ClaudeWear)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/The3DFella/ClaudeWear.git",
+    "directory": "bridge"
+  },
+  "homepage": "https://github.com/The3DFella/ClaudeWear#readme",
+  "bugs": {
+    "url": "https://github.com/The3DFella/ClaudeWear/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "wear-os",
+    "galaxy-watch",
+    "smartwatch",
+    "agent",
+    "voice"
+  ],
+  "type": "module",
+  "bin": {
+    "wearclaude-bridge": "dist/cli.js"
+  },
+  "main": "dist/cli.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "dev": "tsx src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "ws": "^8.22.1"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^11.3.7",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "fastify": "^5.12.8",
+    "zod": "^4.6.7"
+  }
+}

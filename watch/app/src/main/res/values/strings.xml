@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- User-visible product name. Every UI/notification string that shows it reads this. -->
+    <string name="app_name">ClaudeWear</string>
+</resources>
