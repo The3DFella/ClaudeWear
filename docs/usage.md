@@ -150,7 +150,7 @@ ClaudeWear asks for permission to show notifications the first time it opens. Wi
 
 Tapping a notification opens the matching chat or approval.
 
-**How long it keeps watching.** While ClaudeWear is open, a finished chat gives a short buzz. When you leave the app, a background service takes over and a finished chat posts a notification instead. The service starts when you send a reply or start something from the watch, and whenever you leave the app. It keeps watching while any chat or agent is working and for 15 minutes after you leave the app or after the last thing finished, then stops by itself. Android limits this kind of background time to about 6 hours a day. There is no push service, so if the watch restarted or the service was stopped, open ClaudeWear once to resume watching.
+**How long it keeps watching.** While ClaudeWear is open, a finished chat gives a short buzz. When you leave the app, a background service takes over and a finished chat posts a notification instead. The service starts whenever you open the app (and when you send a reply or start something). It keeps watching while any chat or agent is working and for 15 minutes after you leave the app or after the last thing finished, then stops by itself. Android limits this kind of background time to about 6 hours a day. There is no push service, so if the watch restarted or the service was stopped, open ClaudeWear once to resume watching.
 
 A chat that just goes quiet (no output for a while) is shown as idle but doesn't buzz. Only a real end of turn does.
 

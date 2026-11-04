@@ -91,7 +91,7 @@ class AgentWatchService : Service() {
                     }
                 }
             }
-            if (shouldStop(state, lastBusy, app.alertCenter.backgroundedAtMs, now)) {
+            if (shouldStop(state, lastBusy, app.alertCenter.backgroundedAtMs, now, app.alertCenter.visible.value)) {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }

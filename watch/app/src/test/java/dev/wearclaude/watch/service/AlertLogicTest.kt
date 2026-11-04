@@ -136,6 +136,9 @@ class AlertLogicTest {
         assertFalse(shouldStop(idle, 20 * min, 5 * min, 34 * min))
         assertTrue(shouldStop(idle, null, 5 * min, 20 * min))
         assertTrue(shouldStop(null, null, null, 0L))
+        // visible: keep, however long idle
+        assertFalse(shouldStop(idle, 0L, null, 10_000 * min, visible = true))
+        assertFalse(shouldStop(idle, 0L, 5 * min, 10_000 * min, visible = true))
     }
 
     @Test fun nextLastBusy() {

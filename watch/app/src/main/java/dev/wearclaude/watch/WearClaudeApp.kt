@@ -18,6 +18,9 @@ import dev.wearclaude.watch.ui.AppController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -48,11 +51,14 @@ class WearClaudeApp : Application() {
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) = alertCenter.onForeground()
 
-            // Keep watching after the user leaves, even if nothing is busy (the service stops itself later).
-            override fun onStop(owner: LifecycleOwner) {
-                alertCenter.onBackground()
-                if (controller.paired.value == true) startWatchService(this@WearClaudeApp)
-            }
+            // Only records the time; the service (started while visible) stops itself 15 min later if idle.
+            override fun onStop(owner: LifecycleOwner) = alertCenter.onBackground()
         })
+        // Start the service while the app is visible and paired (background starts are refused on Android 12+).
+        scope.launch {
+            combine(controller.paired, alertCenter.visible) { p, v -> p == true && v }
+                .filter { it }
+                .collect { startWatchService(this@WearClaudeApp) }
+        }
     }
 }

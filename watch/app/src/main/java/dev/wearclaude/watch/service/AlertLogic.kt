@@ -60,12 +60,12 @@ fun nextLastBusy(state: AgentsState, lastBusyAtMs: Long?, nowMs: Long): Long? =
     if (isBusy(state)) nowMs else lastBusyAtMs
 
 /**
- * [state] null means unpaired. Never stops while busy; otherwise stops once [KEEP_ALIVE_MS] have passed since the
+ * [state] null means unpaired. Never stops while busy or while the app is [visible]; otherwise stops once [KEEP_ALIVE_MS] have passed since the
  * later of the last busy time and the moment the app went to the background (either may be unknown).
  */
-fun shouldStop(state: AgentsState?, lastBusyAtMs: Long?, backgroundedAtMs: Long?, nowMs: Long): Boolean {
+fun shouldStop(state: AgentsState?, lastBusyAtMs: Long?, backgroundedAtMs: Long?, nowMs: Long, visible: Boolean = false): Boolean {
     if (state == null) return true
-    if (isBusy(state)) return false
+    if (visible || isBusy(state)) return false
     val since = listOfNotNull(lastBusyAtMs, backgroundedAtMs).maxOrNull() ?: return false
     return nowMs - since >= KEEP_ALIVE_MS
 }

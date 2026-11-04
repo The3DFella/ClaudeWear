@@ -4,6 +4,9 @@ import android.os.SystemClock
 import dev.wearclaude.watch.data.AgentsState
 import dev.wearclaude.watch.ui.AppController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -20,9 +23,14 @@ class AlertCenter(
     @Volatile var backgroundedAtMs: Long? = null
         private set
 
-    fun onForeground() { backgroundedAtMs = null }
+    private val _visible = MutableStateFlow(false)
 
-    fun onBackground() { backgroundedAtMs = SystemClock.elapsedRealtime() }
+    /** True while the app is on screen. */
+    val visible: StateFlow<Boolean> = _visible.asStateFlow()
+
+    fun onForeground() { backgroundedAtMs = null; _visible.value = true }
+
+    fun onBackground() { backgroundedAtMs = SystemClock.elapsedRealtime(); _visible.value = false }
 
     fun start() {
         scope.launch {
