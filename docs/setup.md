@@ -108,11 +108,28 @@ Keep this window open while you use the watch. Stop the bridge with Ctrl+C.
 
 You can check reachability from another device on the same Wi-Fi by opening `http://<your-pc-ip>:8787/health` in a browser. It should show `{"ok":true,"version":"0.1.0"}`.
 
-## 4. Build the watch app
+## 4. Get the watch app
 
-There's no prebuilt APK on Releases yet, so you build it yourself. (Each CI run also uploads a debug APK as the `watch-debug-apk` artifact, but see the note on signing under [Updating](#updating).)
+### Option A: download the APK (easiest)
 
-### Point the build at Java 17 and the Android SDK
+1. Download `ClaudeWear-<version>.apk` and `ClaudeWear-<version>.apk.sha256` from <https://github.com/The3DFella/ClaudeWear/releases/latest>.
+2. Verify the checksum. The `.sha256` file holds the expected value; the command's output must match it:
+
+   | OS | Command |
+   | --- | --- |
+   | Windows (PowerShell) | `Get-FileHash ClaudeWear-<version>.apk -Algorithm SHA256` |
+   | macOS | `shasum -a 256 ClaudeWear-<version>.apk` |
+   | Linux | `sha256sum ClaudeWear-<version>.apk` |
+
+3. Install it on the watch using one of the methods in [step 5](#5-install-it-on-the-watch):
+   - **From a PC** with Android platform-tools: enable Developer options and Wireless debugging on the watch, then `adb pair <ip:pairport>`, `adb connect <ip:port>` and `adb install ClaudeWear-<version>.apk`.
+   - **From an Android phone** with an installer app that uses the watch's wireless debugging. Third-party apps exist for this (for example "Bugjaeger" or "Wear Installer 2"); they are not affiliated with ClaudeWear, so follow their own instructions: pair with the watch over wireless debugging, then pick the downloaded APK.
+
+Updates install over the old version because every release is signed with the same key. If you previously installed a self-built **debug** version, uninstall it first (`adb uninstall dev.wearclaude.watch`), because its signature differs and Android will refuse the update.
+
+### Option B: build from source
+
+#### Point the build at Java 17 and the Android SDK
 
 The simplest way is to install [Android Studio](https://developer.android.com/studio), open the `watch/` folder once and let it sync. It installs the SDK and writes `watch/local.properties` for you. Otherwise:
 
@@ -136,7 +153,7 @@ The simplest way is to install [Android Studio](https://developer.android.com/st
 
 3. **adb.** It lives in `<sdk>/platform-tools`. Add that folder to your `PATH`, or call it by full path.
 
-### Build
+#### Build
 
 In a second terminal (leave the bridge running in the first), from the `ClaudeWear` folder you cloned:
 
@@ -157,6 +174,8 @@ cd ClaudeWear\watch
 The APK ends up at `watch/app/build/outputs/apk/debug/app-debug.apk`. The first build downloads Gradle and dependencies and takes a few minutes.
 
 ## 5. Install it on the watch
+
+If you chose Option A, use `adb install ClaudeWear-<version>.apk` (from the folder holding the downloaded file) in place of the install command in step 6 below.
 
 Wear OS watches are sideloaded over Wi-Fi with wireless debugging. These steps are for a Galaxy Watch; other Wear OS watches are similar.
 

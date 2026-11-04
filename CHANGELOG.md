@@ -4,7 +4,7 @@
 
 First public release.
 
-No prebuilt APK yet: build the watch app from source (see docs/setup.md), or download the debug APK artifact from a CI run if you are logged in to GitHub.
+A prebuilt, signed APK (`ClaudeWear-0.1.0.apk`, with a SHA-256 checksum) is available on the Releases page; see docs/setup.md. You can still build from source.
 
 - Pairing: 6-digit code, per-device tokens stored hashed, revoke from the PC.
 - PC chats on Home, grouped by project, with archived chats at the bottom.

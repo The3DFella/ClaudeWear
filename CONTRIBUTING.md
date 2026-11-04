@@ -59,6 +59,21 @@ Conventional style: `type(scope): summary`, for example `fix(bridge): ...` or `f
 - [ ] Docs updated if behaviour changed
 - [ ] Screenshots updated if the UI changed
 
+## Releasing (maintainers)
+
+Releases are signed with a key kept outside the repo. Never commit the keystore or its properties file, and keep the folder backed up: losing the key means updates can no longer be installed over existing installs.
+
+1. Keep `keystore.properties` (keys `storeFile`, `storePassword`, `keyAlias`, `keyPassword`) and the `.jks` together in a private folder such as `~/.claudewear-signing/`.
+2. Bump `versionName`/`versionCode` in `watch/app/build.gradle.kts` and update `CHANGELOG.md`.
+3. Build, from `watch/` with JDK 17:
+   ```sh
+   ./gradlew :app:assembleRelease -Pclaudewear.signing=/path/to/keystore.properties
+   ```
+   (or set `CLAUDEWEAR_SIGNING_PROPERTIES`). Without it the APK is unsigned and Gradle prints a warning. Output: `watch/app/build/outputs/apk/release/ClaudeWear-<version>.apk`.
+4. Verify: `apksigner verify --print-certs ClaudeWear-<version>.apk`.
+5. Checksum: `sha256sum ClaudeWear-<version>.apk > ClaudeWear-<version>.apk.sha256`.
+6. Publish: `gh release create v<version> ClaudeWear-<version>.apk ClaudeWear-<version>.apk.sha256 --title "ClaudeWear <version>" --notes-file notes.md`.
+
 ## Screenshots
 
 Screenshots in the docs are produced by the docs image generator in `docs/tools/`; use it rather than committing hand-made images, so they stay consistent.

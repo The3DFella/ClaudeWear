@@ -110,7 +110,11 @@ wearclaude-bridge
 
 It checks Claude Code, then prints your LAN address (such as `http://192.168.1.23:8787`) and a 6-digit pairing code that's valid for 5 minutes. Leave it running. On Windows, allow Node.js through the firewall on **Private** networks when asked.
 
-**4. Build the watch app.** In a second terminal, from the `ClaudeWear` folder (leave the bridge running in the first). Point the build at the Android SDK with `ANDROID_HOME` or `watch/local.properties` (`sdk.dir=…`), and use JDK 17.
+**4. Get the watch app.**
+
+*Option A: download the APK (easiest).* Download `ClaudeWear-<version>.apk` (and its `.sha256` file) from the [latest release](https://github.com/The3DFella/ClaudeWear/releases/latest), then check it matches the published checksum: `Get-FileHash ClaudeWear-<version>.apk -Algorithm SHA256` (PowerShell), `shasum -a 256 ClaudeWear-<version>.apk` (macOS) or `sha256sum ClaudeWear-<version>.apk` (Linux). Then install it as in step 5 (`adb install ClaudeWear-<version>.apk`). Full details, including installing from an Android phone, are in [docs/setup.md](docs/setup.md#option-a-download-the-apk-easiest).
+
+*Option B: build from source.* In a second terminal, from the `ClaudeWear` folder (leave the bridge running in the first). Point the build at the Android SDK with `ANDROID_HOME` or `watch/local.properties` (`sdk.dir=…`), and use JDK 17.
 
 macOS / Linux:
 
@@ -126,7 +130,7 @@ cd ClaudeWear\watch
 .\gradlew.bat :app:assembleDebug
 ```
 
-**5. Sideload it over wireless debugging.** On the watch: Settings > About watch > Software information, tap **Software version** five times, then Settings > Developer options > turn on **ADB debugging** and **Wireless debugging** > **Pair new device**. On the PC, from the `ClaudeWear/watch` folder (`cd ClaudeWear/watch`; on Windows `cd ClaudeWear\watch`):
+**5. Sideload it over wireless debugging.** (If you downloaded the APK, run `adb install ClaudeWear-<version>.apk` from the folder containing it instead of the `adb install -r app/build/...` line.) On the watch: Settings > About watch > Software information, tap **Software version** five times, then Settings > Developer options > turn on **ADB debugging** and **Wireless debugging** > **Pair new device**. On the PC, from the `ClaudeWear/watch` folder (`cd ClaudeWear/watch`; on Windows `cd ClaudeWear\watch`):
 
 ```sh
 adb pair <watch-ip>:<pairing-port>    # enter the code shown on the watch

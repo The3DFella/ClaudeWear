@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,10 +20,49 @@ android {
         versionName = "0.1.0"
     }
 
+    // Release signing: point Gradle property `claudewear.signing` or env
+    // CLAUDEWEAR_SIGNING_PROPERTIES at a keystore.properties file (storeFile,
+    // storePassword, keyAlias, keyPassword). Without it the release build is unsigned.
+    val signingPath = (project.findProperty("claudewear.signing") as String?)
+        ?: System.getenv("CLAUDEWEAR_SIGNING_PROPERTIES")
+    val signingProps = Properties()
+    val signingFile = signingPath?.let { file(it) }
+    val hasSigning = signingFile != null && signingFile.isFile
+    if (hasSigning) {
+        signingFile!!.inputStream().use { signingProps.load(it) }
+    } else {
+        logger.warn("ClaudeWear: no signing properties found; the release APK will be unsigned.")
+    }
+
+    signingConfigs {
+        if (hasSigning) {
+            create("release") {
+                storeFile = file(signingProps.getProperty("storeFile"))
+                storePassword = signingProps.getProperty("storePassword")
+                keyAlias = signingProps.getProperty("keyAlias")
+                keyPassword = signingProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (hasSigning) signingConfig = signingConfigs.getByName("release")
         }
+    }
+
+    applicationVariants.all {
+        if (buildType.name == "release") {
+            outputs.all {
+                (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                    "ClaudeWear-${versionName}.apk"
+            }
+        }
+    }
+    lint {
+        // lintVitalAnalyzeRelease crashes inside the lint tool itself (AGP 8.7.3); skip it for release builds.
+        checkReleaseBuilds = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
