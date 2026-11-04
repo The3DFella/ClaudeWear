@@ -9,7 +9,14 @@ let dir: string;
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'wc-relay-'));
 });
-afterEach(() => rmSync(dir, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }));
+afterEach(() => {
+  try {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    if (process.platform !== 'win32' || (code !== 'EBUSY' && code !== 'EPERM')) throw e;
+  }
+});
 
 const relay = (env: NodeJS.ProcessEnv, timeoutMs?: number) =>
   relayToChat({ title: 'My chat', text: 'hello', claudeCmd, cwd: dir, env, timeoutMs });

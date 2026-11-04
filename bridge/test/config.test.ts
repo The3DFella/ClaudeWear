@@ -116,14 +116,20 @@ describe('addProject', () => {
   });
 
   it('resolves a relative path to an absolute stored path', () => {
-    const dir = join(work, 'relative-app');
-    mkdirSync(dir);
-    const rel = relative(process.cwd(), dir);
-    expect(isAbsolute(rel)).toBe(false);
-    const p = addProject(loadConfig(), rel);
-    expect(isAbsolute(p.path)).toBe(true);
-    expect(p.path).toBe(resolve(dir));
-    expect(p.name).toBe('relative-app');
+    // Must live on the same drive as cwd, or relative() would return an absolute path on Windows.
+    const base = mkdtempSync(join(process.cwd(), '.tmp-cfg-'));
+    try {
+      const dir = join(base, 'relative-app');
+      mkdirSync(dir);
+      const rel = relative(process.cwd(), dir);
+      expect(isAbsolute(rel)).toBe(false);
+      const p = addProject(loadConfig(), rel);
+      expect(isAbsolute(p.path)).toBe(true);
+      expect(p.path).toBe(resolve(dir));
+      expect(p.name).toBe('relative-app');
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
   });
 
   it('throws when the folder is missing', () => {

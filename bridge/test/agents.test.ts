@@ -18,7 +18,12 @@ beforeEach(() => {
 afterEach(() => {
   if (prevHome === undefined) delete process.env.WEARCLAUDE_HOME;
   else process.env.WEARCLAUDE_HOME = prevHome;
-  rmSync(home, { recursive: true, force: true });
+  try {
+    rmSync(home, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    if (process.platform !== 'win32' || (code !== 'EBUSY' && code !== 'EPERM')) throw e;
+  }
 });
 
 const fixture = (n: string) => resolve('test/fixtures', n);

@@ -109,9 +109,12 @@ export function relayToChat(o: RelayOptions): Promise<RelayOutcome> {
       return;
     }
     let stdout = '';
+    let timedOut = false;
     timer = setTimeout(() => {
+      timedOut = true;
       killTree(child, 2_000);
-      finish('failed');
+      // Resolve once the child has actually exited (so it no longer holds its cwd), bounded.
+      timer = setTimeout(() => finish('failed'), 5_000);
     }, o.timeoutMs ?? RELAY_TIMEOUT_MS);
     child.stdout!.setEncoding('utf8');
     child.stdout!.on('data', (c: string) => {
@@ -119,7 +122,7 @@ export function relayToChat(o: RelayOptions): Promise<RelayOutcome> {
     });
     child.on('error', () => finish('failed'));
     child.on('close', (code) => {
-      if (code !== 0) return finish('failed');
+      if (timedOut || code !== 0) return finish('failed');
       const r = parseResult(stdout);
       if (!r || r.is_error === true || typeof r.result !== 'string') return finish('failed');
       finish(parseRelayResult(r.result));
