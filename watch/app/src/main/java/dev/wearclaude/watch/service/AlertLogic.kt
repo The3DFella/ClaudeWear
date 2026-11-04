@@ -9,7 +9,7 @@ sealed interface Alert {
     data class ApprovalNeeded(val agentId: String, val approvalId: String, val tool: String, val summary: String) : Alert
 }
 
-const val IDLE_STOP_MS = 60_000L
+const val KEEP_ALIVE_MS = 15 * 60_000L
 const val ALERT_SUMMARY_MAX = 100
 
 private fun isActive(status: String) = status == "running" || status == "waiting_approval"
@@ -27,7 +27,7 @@ fun serviceText(agents: Int, chats: Int): String {
         if (agents > 0) add(if (agents == 1) "1 agent running" else "$agents agents running")
         if (chats > 0) add(if (chats == 1) "1 PC chat working" else "$chats PC chats working")
     }
-    return if (parts.isEmpty()) "Connected" else parts.joinToString(" · ")
+    return if (parts.isEmpty()) "Watching for finished chats" else parts.joinToString(" · ")
 }
 
 /** Done/failed alerts from a state transition; nothing until both sides are loaded. Approvals: see [approvalAlerts]. */
@@ -55,15 +55,29 @@ fun chatAlerts(prev: AgentsState, next: AgentsState): List<Alert.ChatFinished> {
         .map { Alert.ChatFinished(it.id, it.title, it.projectName) }
 }
 
-/** When the idle period began: null while busy, otherwise the earliest idle timestamp seen. */
-fun nextIdleSince(state: AgentsState, idleSinceMs: Long?, nowMs: Long): Long? =
-    if (isBusy(state)) null else idleSinceMs ?: nowMs
+/** Last time something was busy: [now] while busy, otherwise unchanged. */
+fun nextLastBusy(state: AgentsState, lastBusyAtMs: Long?, nowMs: Long): Long? =
+    if (isBusy(state)) nowMs else lastBusyAtMs
 
-/** [state] null means unpaired. */
-fun shouldStop(state: AgentsState?, idleSinceMs: Long?, nowMs: Long): Boolean {
+/**
+ * [state] null means unpaired. Never stops while busy; otherwise stops once [KEEP_ALIVE_MS] have passed since the
+ * later of the last busy time and the moment the app went to the background (either may be unknown).
+ */
+fun shouldStop(state: AgentsState?, lastBusyAtMs: Long?, backgroundedAtMs: Long?, nowMs: Long): Boolean {
     if (state == null) return true
     if (isBusy(state)) return false
-    return idleSinceMs != null && nowMs - idleSinceMs >= IDLE_STOP_MS
+    val since = listOfNotNull(lastBusyAtMs, backgroundedAtMs).maxOrNull() ?: return false
+    return nowMs - since >= KEEP_ALIVE_MS
+}
+
+/** How an alert reaches the user. */
+enum class Delivery { Vibrate, Notify, None }
+
+/** Foreground: a short buzz (approvals open in-app on their own, so no buzz). Background: a notification. */
+fun deliveryFor(alert: Alert, foreground: Boolean): Delivery = when {
+    !foreground -> Delivery.Notify
+    alert is Alert.ApprovalNeeded -> Delivery.None
+    else -> Delivery.Vibrate
 }
 
 fun alertContent(a: Alert): Pair<String, String> = when (a) {

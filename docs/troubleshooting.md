@@ -131,9 +131,10 @@ The watch couldn't open a connection to the address you typed.
 1. Allow notifications for ClaudeWear (Settings > Apps > ClaudeWear > Notifications). The app asks once, the first time it opens.
 2. Make sure the **Agent updates** and **Approvals** channels are on.
 3. Check Do Not Disturb, Bedtime and Theatre modes.
-4. The background service only runs while something is working, and stops about a minute after everything is idle. If the app was closed and nothing was working, a new run on the PC won't be noticed until you open the app. Open ClaudeWear once after starting a long task on the PC.
-5. Some battery savers stop background apps. Exclude ClaudeWear from battery optimisation if your watch offers it.
-6. A chat that simply stops producing output (no proper end of turn) doesn't buzz.
+4. Open ClaudeWear once after the watch restarts; that starts the watching again.
+5. Look for the ongoing "Watching for finished chats" notification. If it is gone, the service has stopped (it stops 15 minutes after you leave the app and nothing is working, or when Android's background limit of about 6 hours a day is reached). Open the app to start it again.
+6. Battery saver can stop background apps. Exclude ClaudeWear from battery optimisation if your watch offers it.
+7. A chat that simply stops producing output (no proper end of turn) doesn't buzz.
 
 ## Building and installing the watch app
 

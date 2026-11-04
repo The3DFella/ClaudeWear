@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1 - 2026-11-05
+
+### Fixed
+
+- The finish buzz now works while the app is open, after replying to a chat, and in the background.
+
 ## v0.1.0 - 2026-11-05
 
 First public release.

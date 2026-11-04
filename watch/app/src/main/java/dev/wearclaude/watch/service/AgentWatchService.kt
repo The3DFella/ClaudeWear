@@ -73,28 +73,15 @@ class AgentWatchService : Service() {
     }
 
     private suspend fun watch() {
-        val controller = (application as WearClaudeApp).controller
-        val notifier = Notifier(this)
-        var prev: AgentsState? = null
-        var idleSince: Long? = null
-        var alerted: Set<String>? = null
+        val app = application as WearClaudeApp
+        // Alerts are delivered by AlertCenter; this only keeps the process alive, shows the ongoing notification
+        // and stops itself after the keep-alive window.
+        var lastBusy: Long? = SystemClock.elapsedRealtime()
         val ticker = flow { while (true) { emit(Unit); delay(TICK_MS) } }
-        combine(controller.watchedState(), ticker) { s, _ -> s }.collect { state ->
+        combine(app.controller.watchedState(), ticker) { s, _ -> s }.collect { state ->
             val now = SystemClock.elapsedRealtime()
             if (state != null) {
-                if (state !== prev) {
-                    prev?.let { p ->
-                        alertsFor(p, state).forEach(notifier::alert)
-                        chatAlerts(p, state).forEach(notifier::alert)
-                    }
-                    prev = state
-                }
-                val before = alerted
-                val (approvals, updated) = approvalAlerts(state, alerted)
-                alerted = updated
-                approvals.forEach(notifier::alert)
-                if (before != null && updated != null) (before - updated).forEach(notifier::cancelApproval)
-                idleSince = nextIdleSince(state, idleSince, now)
+                lastBusy = nextLastBusy(state, lastBusy, now)
                 val n = activeAgentCount(state) to workingChatCount(state)
                 if (n != counts) {
                     counts = n
@@ -104,7 +91,7 @@ class AgentWatchService : Service() {
                     }
                 }
             }
-            if (shouldStop(state, idleSince, now)) {
+            if (shouldStop(state, lastBusy, app.alertCenter.backgroundedAtMs, now)) {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }

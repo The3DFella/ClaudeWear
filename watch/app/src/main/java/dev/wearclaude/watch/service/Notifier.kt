@@ -6,6 +6,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
@@ -18,6 +22,7 @@ const val CHANNEL_APPROVALS = "approvals"
 const val CHANNEL_UPDATES = "agent_updates"
 const val CHANNEL_SERVICE = "service"
 
+private const val FINISH_BUZZ_MS = 200L
 private val APPROVAL_VIBRATION = longArrayOf(0, 400, 150, 100, 150, 400) // long-short-long
 
 fun ensureChannels(context: Context) {
@@ -41,9 +46,26 @@ class Notifier(private val context: Context) {
 
     fun cancelApproval(approvalId: String) = NotificationManagerCompat.from(context).cancel("approval:$approvalId".hashCode())
 
-    /** Posts [alert] unless the app is on screen (the in-app UI handles it then). */
+    private fun vibrateShort() {
+        try {
+            val v = if (Build.VERSION.SDK_INT >= 31) {
+                context.getSystemService(VibratorManager::class.java)?.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION") context.getSystemService(Vibrator::class.java)
+            }
+            v?.vibrate(VibrationEffect.createOneShot(FINISH_BUZZ_MS, VibrationEffect.DEFAULT_AMPLITUDE))
+        } catch (_: Exception) {
+        }
+    }
+
+    /** Delivers [alert] once: a short buzz while the app is on screen, otherwise a notification. */
     fun alert(alert: Alert) {
-        if (ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
+        val foreground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        when (deliveryFor(alert, foreground)) {
+            Delivery.None -> return
+            Delivery.Vibrate -> { vibrateShort(); return }
+            Delivery.Notify -> Unit
+        }
         val (title, text) = alertContent(alert)
         val (route, key, channel) = when (alert) {
             is Alert.Done -> Triple("agent/${Uri.encode(alert.agentId)}", "status:${alert.agentId}", CHANNEL_UPDATES)

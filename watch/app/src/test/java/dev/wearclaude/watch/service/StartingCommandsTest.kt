@@ -15,7 +15,7 @@ class StartingCommandsTest {
         override suspend fun followUp(id: String, prompt: String) { if (fail) throw RuntimeException("x") }
         override suspend fun stop(id: String) {}
         override suspend fun decide(approvalId: String, allow: Boolean) {}
-        override suspend fun sendToChat(id: String, prompt: String) {}
+        override suspend fun sendToChat(id: String, prompt: String) { if (fail) throw RuntimeException("x") }
     }
 
     @Test fun firesAfterSuccess() = runTest {
@@ -23,8 +23,9 @@ class StartingCommandsTest {
         val c = StartingCommands(Fake()) { n++ }
         assertEquals("id1", c.createAgent("p", "hi"))
         c.followUp("id1", "more")
+        c.sendToChat("c1", "reply")
         c.stop("id1")
-        assertEquals(2, n)
+        assertEquals(3, n)
     }
 
     @Test fun doesNotFireOnFailure() = runTest {
@@ -32,6 +33,7 @@ class StartingCommandsTest {
         val c = StartingCommands(Fake(fail = true)) { n++ }
         try { c.createAgent("p", "hi"); fail() } catch (_: RuntimeException) {}
         try { c.followUp("a", "hi"); fail() } catch (_: RuntimeException) {}
+        try { c.sendToChat("c", "hi"); fail() } catch (_: RuntimeException) {}
         assertEquals(0, n)
     }
 }

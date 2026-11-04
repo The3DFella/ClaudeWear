@@ -7,6 +7,11 @@ import dev.wearclaude.watch.data.BridgeApi
 import dev.wearclaude.watch.data.EventStream
 import dev.wearclaude.watch.data.Settings
 import dev.wearclaude.watch.data.deviceName
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import dev.wearclaude.watch.service.AlertCenter
+import dev.wearclaude.watch.service.Notifier
 import dev.wearclaude.watch.service.StartingCommands
 import dev.wearclaude.watch.service.startWatchService
 import dev.wearclaude.watch.ui.AppController
@@ -16,9 +21,11 @@ import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
-/** Owns the single [AppController] shared by the UI and the watch service. */
+/** Owns the single [AppController] and [AlertCenter], shared by the UI and the watch service. */
 class WearClaudeApp : Application() {
     lateinit var controller: AppController
+        private set
+    lateinit var alertCenter: AlertCenter
         private set
 
     override fun onCreate() {
@@ -37,5 +44,15 @@ class WearClaudeApp : Application() {
             deviceName = deviceName(Build.MODEL),
             commandsFactory = { url, token -> StartingCommands(BridgeApi(url, token, client)) { startWatchService(this) } },
         )
+        alertCenter = AlertCenter(controller, Notifier(this), scope).also { it.start() }
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) = alertCenter.onForeground()
+
+            // Keep watching after the user leaves, even if nothing is busy (the service stops itself later).
+            override fun onStop(owner: LifecycleOwner) {
+                alertCenter.onBackground()
+                if (controller.paired.value == true) startWatchService(this@WearClaudeApp)
+            }
+        })
     }
 }

@@ -23,7 +23,7 @@ ClaudeWear is a Wear OS app plus a small Node.js bridge that runs on your PC. Th
 - **See your active Claude Code chats** from the desktop app, grouped by project, newest first.
 - **Archived chats are tucked away** under their own chip, just like in the desktop app.
 - **Live progress:** steps such as "Editing server.ts" or "Running `npm test`" and Claude's replies stream in as they happen.
-- **A buzz when a chat finishes**, so you can walk away from your desk.
+- **A buzz when a chat finishes**, so you can walk away from your desk. It works while ClaudeWear is open or running in the background (it keeps watching while any chat is working and for 15 minutes after you leave the app; Android limits this background time to about 6 hours a day).
 - **Reply by voice** into the open desktop chat. Claude answers there and you read the answer on your wrist.
 - **Approve or deny tool use from your wrist** for the Claude Code agents the bridge runs.
 - **Works at home over Wi-Fi, or anywhere via [Tailscale Funnel](docs/remote-access-tailscale.md).**
@@ -188,7 +188,7 @@ See [SECURITY.md](SECURITY.md) for the threat model and how to report a vulnerab
 - **Claude treats a relayed message as a teammate's request**, not as typed by you. It can't approve permission prompts.
 - **Relay delivery can't be independently confirmed.** If a send times out, check the chat before retrying; it may have arrived.
 - **Undocumented formats.** Claude Code transcripts and the desktop app's chat metadata aren't official APIs. A Claude Code update could break chat listing or titles until ClaudeWear catches up. Unknown lines are skipped, not fatal.
-- **No push notifications.** Buzzes come from a background service that runs while something is working and stops about a minute after everything is idle. If the app is fully closed and nothing is running, you won't be notified until you open it.
+- **No push notifications.** Buzzes come from a background service that keeps watching while something is working and for 15 minutes after you leave the app (Android limits this to about 6 hours a day). If the watch restarts or the service was stopped, you won't be notified until you open the app once.
 - **One bridge per watch.** A watch pairs with one PC at a time.
 - **Starting brand-new tasks from the watch** isn't on Home in this release; ClaudeWear is focused on the chats you already have.
 - **Build it yourself** for now: there's no Play Store listing or release APK yet.

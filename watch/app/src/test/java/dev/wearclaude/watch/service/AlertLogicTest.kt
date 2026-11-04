@@ -119,21 +119,42 @@ class AlertLogicTest {
         assertEquals(1, approvalAlerts(live, s2).first.size)
     }
 
+    private val min = 60_000L
+
     @Test fun shouldStopLogic() {
         val idle = st(agent("a", "done"))
         val busy = st(agent("a", "running"))
-        assertFalse(shouldStop(busy, 0L, 1_000_000L))
-        assertFalse(shouldStop(idle, null, 1_000_000L))
-        assertFalse(shouldStop(idle, 1_000L, 60_999L))
-        assertTrue(shouldStop(idle, 1_000L, 61_000L))
-        assertTrue(shouldStop(null, null, 0L))
-        assertFalse(shouldStop(st(agent("a", "waiting_approval")), 0L, 999_999L))
+        assertFalse(shouldStop(busy, 0L, 0L, 10_000 * min))
+        assertFalse(shouldStop(st(agent("a", "waiting_approval")), 0L, null, 10_000 * min))
+        assertFalse(shouldStop(idle, null, null, 10_000 * min))
+        // idle 14m59s since last busy: keep; 15 min: stop
+        assertFalse(shouldStop(idle, 1_000L, null, 1_000L + 15 * min - 1))
+        assertTrue(shouldStop(idle, 1_000L, null, 1_000L + 15 * min))
+        // the later of lastBusy and backgroundedAt counts
+        assertFalse(shouldStop(idle, 0L, 10 * min, 24 * min + 59_000))
+        assertTrue(shouldStop(idle, 0L, 10 * min, 25 * min))
+        assertFalse(shouldStop(idle, 20 * min, 5 * min, 34 * min))
+        assertTrue(shouldStop(idle, null, 5 * min, 20 * min))
+        assertTrue(shouldStop(null, null, null, 0L))
     }
 
-    @Test fun nextIdleSince() {
-        assertNull(nextIdleSince(st(agent("a", "running")), 5L, 10L))
-        assertEquals(10L, nextIdleSince(st(agent("a", "done")), null, 10L))
-        assertEquals(5L, nextIdleSince(st(agent("a", "done")), 5L, 10L))
+    @Test fun nextLastBusy() {
+        assertEquals(10L, nextLastBusy(st(agent("a", "running")), 5L, 10L))
+        assertEquals(5L, nextLastBusy(st(agent("a", "done")), 5L, 10L))
+        assertNull(nextLastBusy(st(agent("a", "done")), null, 10L))
+    }
+
+    @Test fun deliveryRouting() {
+        val done = Alert.Done("a", "t", null)
+        val failed = Alert.Failed("a", "t", null)
+        val chat = Alert.ChatFinished("c", "t", "p")
+        val appr = Alert.ApprovalNeeded("a", "x", "Bash", "rm")
+        for (a in listOf(done, failed, chat)) {
+            assertEquals(Delivery.Vibrate, deliveryFor(a, true))
+            assertEquals(Delivery.Notify, deliveryFor(a, false))
+        }
+        assertEquals(Delivery.None, deliveryFor(appr, true))
+        assertEquals(Delivery.Notify, deliveryFor(appr, false))
     }
 
     @Test fun activeCountAndText() {
@@ -141,7 +162,7 @@ class AlertLogicTest {
         assertEquals(2, activeAgentCount(s))
         assertEquals("2 agents running", serviceText(2, 0))
         assertEquals("1 agent running", serviceText(1, 0))
-        assertEquals("Connected", serviceText(0, 0))
+        assertEquals("Watching for finished chats", serviceText(0, 0))
         assertEquals("1 PC chat working", serviceText(0, 1))
         assertEquals("3 PC chats working", serviceText(0, 3))
         assertEquals("2 agents running · 1 PC chat working", serviceText(2, 1))
@@ -152,12 +173,11 @@ class AlertLogicTest {
         val s = AgentsState(agents = mapOf("a" to agent("a", "done")), chats = mapOf("c" to chat("c", "working")), loaded = true)
         assertEquals(1, workingChatCount(s))
         assertTrue(isBusy(s))
-        assertFalse(shouldStop(s, 1_000L, 999_999L))
-        assertNull(nextIdleSince(s, 5L, 10L))
+        assertFalse(shouldStop(s, 1_000L, null, 99_999_999L))
         val idle = s.copy(chats = mapOf("c" to chat("c", "idle")))
         assertEquals(0, workingChatCount(idle))
         assertFalse(isBusy(idle))
-        assertTrue(shouldStop(idle, 1_000L, 61_000L))
+        assertTrue(shouldStop(idle, 1_000L, null, 1_000L + 15 * min))
         assertTrue(isBusy(st(agent("a", "running"))))
     }
 
